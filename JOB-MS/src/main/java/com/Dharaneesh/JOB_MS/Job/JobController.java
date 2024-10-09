@@ -1,5 +1,6 @@
 package com.Dharaneesh.JOB_MS.Job;
 
+import com.Dharaneesh.JOB_MS.Job.DTO.JobDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class JobController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Job>> getJob()
+    public ResponseEntity<List<JobDTO>> getJob()
     {
         return new ResponseEntity<>(jobService.getJob(), HttpStatus.OK);
     }

@@ -1,9 +1,11 @@
 package com.Dharaneesh.JOB_MS.Job;
 
+import com.Dharaneesh.JOB_MS.Job.DTO.JobDTO;
+
 import java.util.List;
 
 public interface JobService {
-    List<Job> getJob();
+    List<JobDTO> getJob();
 
     void createJob(Job job);
 
