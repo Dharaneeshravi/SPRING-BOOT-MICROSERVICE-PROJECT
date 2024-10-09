@@ -60,9 +60,10 @@ public class JobServiceimp implements JobService {
     }
 
     @Override
-    public Job getJobById(Long id) {
+    public JobDTO getJobById(Long id) {
 
-        return jobRepository.findById(id).orElse(null);
+        Job job=jobRepository.findById(id).orElse(null);
+        return convertToDto(job);
     }
 
     @Override
