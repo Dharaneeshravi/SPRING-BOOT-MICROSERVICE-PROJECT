@@ -6,6 +6,8 @@ import com.Dharaneesh.JOB_MS.Job.External.Review;
 import com.Dharaneesh.JOB_MS.Job.Job;
 import com.Dharaneesh.JOB_MS.Job.JobRepository;
 import com.Dharaneesh.JOB_MS.Job.JobService;
+import com.Dharaneesh.JOB_MS.Job.Mapper.JobMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +23,13 @@ public class JobServiceimp implements JobService {
 
     private final JobRepository jobRepository;
 
+
     public JobServiceimp(JobRepository jobRepository) {
         this.jobRepository = jobRepository;
     }
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Override
     public List<JobDTO> getJob() {
@@ -35,20 +41,14 @@ public class JobServiceimp implements JobService {
 
     private JobDTO convertToDto(Job job)
     {
-        JobDTO jobDTO=new JobDTO();
-        jobDTO.setJob(job);
-
-        RestTemplate restTemplate=new RestTemplate();
-
-        Company company=restTemplate.getForObject("http://localhost:8082/company/"+job.getCompanyId(), Company.class);
-        jobDTO.setCompany(company);
-
-         ResponseEntity<List<Review>> reviews=restTemplate.exchange("http://localhost:8083/review?companyId="+job.getCompanyId(), HttpMethod.GET, null, new ParameterizedTypeReference<List<Review>>() {
+        Company company=restTemplate.getForObject("http://COMPANY-MS:8082/company/"+job.getCompanyId(), Company.class);
+        ResponseEntity<List<Review>> responseEntity=restTemplate.exchange("http://REVIEW-MS:8083/review?companyId="+job.getCompanyId(), HttpMethod.GET, null, new ParameterizedTypeReference<List<Review>>() {
                         });
-         List<Review> reviews1=reviews.getBody();
-         jobDTO.setReviews(reviews1);
-
+        List<Review> reviews=responseEntity.getBody();
+        JobDTO jobDTO= JobMapper.MapToJobDto(job,company,reviews);
         return jobDTO;
+
+
     }
 
     @Override
