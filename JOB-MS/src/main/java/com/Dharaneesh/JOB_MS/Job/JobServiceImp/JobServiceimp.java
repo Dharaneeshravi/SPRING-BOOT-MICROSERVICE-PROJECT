@@ -1,5 +1,7 @@
 package com.Dharaneesh.JOB_MS.Job.JobServiceImp;
 
+import com.Dharaneesh.JOB_MS.Job.Clients.CompanyClient;
+import com.Dharaneesh.JOB_MS.Job.Clients.ReviewClient;
 import com.Dharaneesh.JOB_MS.Job.DTO.JobDTO;
 import com.Dharaneesh.JOB_MS.Job.External.Company;
 import com.Dharaneesh.JOB_MS.Job.External.Review;
@@ -8,9 +10,6 @@ import com.Dharaneesh.JOB_MS.Job.JobRepository;
 import com.Dharaneesh.JOB_MS.Job.JobService;
 import com.Dharaneesh.JOB_MS.Job.Mapper.JobMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -22,10 +21,14 @@ import java.util.stream.Collectors;
 public class JobServiceimp implements JobService {
 
     private final JobRepository jobRepository;
+    private final CompanyClient companyClient;
+    private ReviewClient reviewClient;
 
 
-    public JobServiceimp(JobRepository jobRepository) {
+    public JobServiceimp(JobRepository jobRepository,CompanyClient companyClient,ReviewClient reviewClient) {
         this.jobRepository = jobRepository;
+        this.companyClient=companyClient;
+        this.reviewClient=reviewClient;
     }
 
     @Autowired
@@ -41,10 +44,9 @@ public class JobServiceimp implements JobService {
 
     private JobDTO convertToDto(Job job)
     {
-        Company company=restTemplate.getForObject("http://COMPANY-MS:8082/company/"+job.getCompanyId(), Company.class);
-        ResponseEntity<List<Review>> responseEntity=restTemplate.exchange("http://REVIEW-MS:8083/review?companyId="+job.getCompanyId(), HttpMethod.GET, null, new ParameterizedTypeReference<List<Review>>() {
-                        });
-        List<Review> reviews=responseEntity.getBody();
+
+        Company company=companyClient.getcompany(job.getCompanyId());
+        List<Review> reviews=reviewClient.getReview(job.getCompanyId());
         JobDTO jobDTO= JobMapper.MapToJobDto(job,company,reviews);
         return jobDTO;
 
